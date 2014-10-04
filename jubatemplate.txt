@@ -17,11 +17,11 @@ CONFIGPATH="/etc/jubatus/config/${JUBATUS_METHOD_NAME}.json"
 INSTANCE_NAME="${JUBATUS_METHOD_NAME}"
 
 conf_check() {
-    if [ -f ${CONFIGPATH} ]; then
+    if [ ! -f ${CONFIGPATH} ]; then
         echo "${CONFIGPATH} is not exists."
         exit 3
     fi
-    if [ -x ${PROG} ]; then
+    if [ ! -x ${PROG} ]; then
         echo "${PROG} is not executable."
         exit 4
     fi
