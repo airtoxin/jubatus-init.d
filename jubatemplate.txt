@@ -1,20 +1,20 @@
 #!/bin/bash
 # chkconfig: 2345 90 10
-# description: jubaclustering.
+# description: ${JUBATUS_METHOD_NAME} daemon.
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
 RETVAL=0
-PROG="/usr/bin/jubaclustering"
+PROG="/usr/bin/${JUBATUS_METHOD_NAME}"
 PROGNAME=$(basename ${PROG})
 LOCKFILE=/var/lock/subsys/${PROGNAME}
 PIDFILE=/var/run/${PROGNAME}.pid
 LOGFILE=/var/log/${PROGNAME}.log
 
-# jubaclustering options
-CONFIGPATH="/etc/jubatus/config/jubaclustering.json"
-NAME="jubaclustering"
+# ${JUBATUS_METHOD_NAME} options
+CONFIGPATH="/etc/jubatus/config/${JUBATUS_METHOD_NAME}.json"
+INSTANCE_NAME="${JUBATUS_METHOD_NAME}"
 
 conf_check() {
     if [ -f ${CONFIGPATH} ]; then
@@ -31,7 +31,7 @@ start() {
     conf_check
     # Start daemons.
     echo -n $"Starting ${PROGNAME}: "
-    nohup ${PROG} --configpath=${CONFIGPATH} --name=${NAME} > ${LOGFILE} 2>/dev/null &
+    nohup ${PROG} --configpath=${CONFIGPATH} --name=${INSTANCE_NAME} > ${LOGFILE} 2>/dev/null &
     PID=$!
     sleep 1
     kill -s 0 $PID >/dev/null 2>&1

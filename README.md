@@ -15,3 +15,8 @@ init.d script of jubatus
 |jubarecommender|o|x|x|
 |jubaregression|o|x|x|
 |jubastat|o|x|x|
+
+##How to use
+`bash setup.sh`
+
+then, creates init.d scripts.
