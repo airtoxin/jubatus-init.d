@@ -1,0 +1,93 @@
+#!/bin/bash
+# chkconfig: 2345 90 10
+# description: jubaclassifier.
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+PROG="/usr/bin/jubaclassifier"
+PROGNAME=$(basename ${PROG})
+LOCKFILE=/var/lock/subsys/${PROGNAME}
+PIDFILE=/var/run/${PROGNAME}.pid
+LOGFILE=/var/log/${PROGNAME}.log
+
+# jubaclassifier options
+CONFIGPATH="/etc/jubatus/config/jubaclassifier.json"
+NAME="jubaclassifier"
+
+conf_check() {
+    if [ -f ${CONFIGPATH} ]; then
+        echo "${CONFIGPATH} is not exists."
+        exit 3
+    fi
+    if [ -x ${PROG} ]; then
+        echo "${PROG} is not executable."
+        exit 4
+    fi
+}
+
+start() {
+    conf_check
+    # Start daemons.
+    echo -n $"Starting ${PROGNAME}: "
+    nohup ${PROG} --configpath=${CONFIGPATH} --name=${NAME} > ${LOGFILE} 2>/dev/null &
+    PID=$!
+    sleep 1
+    kill -s 0 $PID >/dev/null 2>&1
+    RETVAL=$?
+    if [ ${RETVAL} -eq 0 ]; then
+        touch $LOCKFILE
+        echo ${PID} > ${PIDFILE}
+        success
+    else
+        failure
+    fi
+    echo
+    return $RETVAL
+}
+
+stop() {
+    conf_check
+    # Stop daemons.
+    echo -n $"Shutting down ${PROGNAME}: "
+    killproc ${PROG}
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE $PIDFILE
+    echo
+    return $RETVAL
+}
+
+check_status() {
+    if [ -f $PIDFILE ]; then
+        PID=$(cat $PIDFILE)
+        kill -s 0 $PID >/dev/null 2>&1 && echo "${PROGNAME} is running." && exit 0
+        echo "${PROGNAME} is not running."
+        exit 1
+    else
+        echo "${PROGNAME} is not running."
+        exit 1
+    fi
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  status)
+    check_status
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart|status}"
+    exit 2
+esac
+
+exit $?
