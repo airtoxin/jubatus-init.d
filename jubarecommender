@@ -17,12 +17,18 @@ CONFIGPATH="/etc/jubatus/config/jubarecommender.json"
 NAME="jubarecommender"
 
 conf_check() {
-    [ -f ${CONFIGPATH} ] || exit 5
-    [ -x ${PROG} ] || exit 6
+    if [ -f ${CONFIGPATH} ]; then
+        echo "${CONFIGPATH} is not exists."
+        exit 3
+    fi
+    if [ -x ${PROG} ]; then
+        echo "${PROG} is not executable."
+        exit 4
+    fi
 }
 
 start() {
-    # conf_check
+    conf_check
     # Start daemons.
     echo -n $"Starting ${PROGNAME}: "
     nohup ${PROG} --configpath=${CONFIGPATH} --name=${NAME} > ${LOGFILE} 2>/dev/null &
